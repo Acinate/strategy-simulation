@@ -1,4 +1,7 @@
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -19,9 +22,11 @@ public class Strategy {
     private int score = 0;
     private double tradeBalance = initialBalance;
     private double bankBalance = 0;
+    private double bankruptBalance = 80;
     private double totalCommissionsPaid = 0;
     private double totalLossesIncurred = 0;
     private double totalWinsAccumulated = 0;
+    private boolean payCommissionsFromTradeBalance = true;
 
     private final Random random = new Random();
     private final double[] profitLevels = new double[]{1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000, 1024000};
@@ -42,6 +47,19 @@ public class Strategy {
         totalWinsAccumulated = 0;
     }
 
+    public double minMax(double min, double max) {
+        int minInt = (int) (min * 100);
+        int maxInt = (int) (max * 100);
+        int maxRoll = minInt;
+        for (int i = minInt; i < maxInt; i++) {
+            maxRoll++;
+            if (random.nextInt(minInt, maxRoll + 1) < (maxRoll + 1) / 2) {
+                break;
+            }
+        }
+        return ((double) maxRoll / 100);
+    }
+
     public double runSimulation() {
         initialize();
         for (int tradeCount = 1; tradeCount <= 500; tradeCount++) {
@@ -52,7 +70,8 @@ public class Strategy {
                 break;
             }
             if (isWinningTrade()) {
-                double percentGain = random.nextDouble(maxWin - minWin) + minWin;
+                double max = minMax(minWin, maxWin);
+                double percentGain = random.nextDouble(max - minWin) + minWin;
                 double netGain = (tradeBalance * percentGain);
                 tradeBalance += netGain;
                 totalWinsAccumulated += netGain;
@@ -67,6 +86,7 @@ public class Strategy {
                     }
                 }
             } else {
+                double max = maxLoss - (minMax(minLoss, maxLoss) - minLoss) + 0.01;
                 double percentGain = -1 * (random.nextDouble(maxLoss - minLoss) + minLoss);
                 double netGain = Math.round(tradeBalance * percentGain);
                 tradeBalance += netGain;
@@ -74,7 +94,7 @@ public class Strategy {
                 if (logResults) {
                     printTrade(tradeCount, netGain, percentGain, tradeBalance, bankBalance, score, level);
                 }
-                if (tradeBalance < 80) {
+                if (tradeBalance < bankruptBalance) {
                     double amtToDeposit = initialBalance - tradeBalance;
                     bankBalance -= amtToDeposit;
                     tradeBalance += amtToDeposit;
@@ -85,9 +105,13 @@ public class Strategy {
             }
             double tradeCommissions = Math.round((tradeBalance / avgContractCost) * commission);
             totalCommissionsPaid += tradeCommissions;
-            bankBalance -= tradeCommissions;
+            if (payCommissionsFromTradeBalance) {
+                tradeBalance -= (tradeCommissions * 2);
+            } else {
+                bankBalance -= (tradeCommissions * 2);
+            }
             if (logResults) {
-                sleep(500);
+                sleep(1000);
             }
         }
         double finalBalance = tradeBalance + bankBalance;
@@ -114,14 +138,24 @@ public class Strategy {
         double riskRewardRatio = Math.round(rewardPerTrade / riskPerTrade);
         System.out.println("Initial Balance: " + printBalance(initialBalance) + " | AVG Risk: " + printPercentage(riskPerTrade) + " | AVG Reward: " + printPercentage(rewardPerTrade) + " | Ratio: " + riskRewardRatio + " | Use Bankroll: " + useBankRoll);
         for (int w = 20; w <= 40; w += 2) {
-            double totalBalance = 0;
             int numberTrials = 100;
+            double finalBalanceSum = 0, standardDeviation = 0;
+            List<Double> finalBalanceList = new ArrayList<>();
             for (int i = 0; i < numberTrials; i++) {
                 double finalBalance = runSimulation(w);
-                totalBalance += finalBalance;
+                finalBalanceList.add(finalBalance);
+                finalBalanceSum += finalBalance;
             }
-            double averageBalance = totalBalance / numberTrials;
-            System.out.println("WR: " + w + "% | AVG Final Balance: " + printBalance(averageBalance));
+            double averageFinalBalance = finalBalanceSum / numberTrials;
+            for (double finalBalance : finalBalanceList) {
+                standardDeviation += Math.pow(finalBalance - averageFinalBalance, 2);
+            }
+            Collections.sort(finalBalanceList);
+            double median = finalBalanceList.get(finalBalanceList.size() / 2 - 1);
+            standardDeviation = Math.sqrt(standardDeviation / numberTrials);
+            double finalStandardDeviation = standardDeviation;
+            double average = finalBalanceList.stream().filter(fb -> (fb > (median + finalStandardDeviation) || fb < (median + finalStandardDeviation))).reduce(0.0, Double::sum) / numberTrials;
+            System.out.println("WR: " + w + "% | AVG Final Balance: " + printBalance(average));
         }
         logResults = true;
     }
@@ -140,9 +174,9 @@ public class Strategy {
         String netGainStr = "Trade Gain: " + printBalance(netGain, percentGain);
         String tradeBalanceStr = "Trade Balance: " + printBalance(tradeBalance);
         String bankBalanceStr = "Bank Balance: " + printBalance(bankBalance);
-        String scoreStr = "Score: " + score;
+        String scoreStr = "Total Balance: " + printBalance(tradeBalance + bankBalance);
         String levelStr = "Level: " + level;
-        System.out.format("%8s%3s%34s%3s%28s%3s%28s%3s%12s%3s%12s%1s", tradeCountStr, " | ", netGainStr, " | ", tradeBalanceStr, " | ", bankBalanceStr, " | ", scoreStr, " | ", levelStr, "\n");
+        System.out.format("%8s%3s%34s%3s%28s%3s%28s%3s%34s%3s%12s%1s", tradeCountStr, " | ", netGainStr, " | ", tradeBalanceStr, " | ", bankBalanceStr, " | ", scoreStr, " | ", levelStr, "\n");
     }
 
     private String printBalance(double balance) {
@@ -215,5 +249,13 @@ public class Strategy {
 
     public void setUseBankRoll(boolean useBankRoll) {
         this.useBankRoll = useBankRoll;
+    }
+
+    public void setBankruptBalance(double bankruptBalance) {
+        this.bankruptBalance = bankruptBalance;
+    }
+
+    public void setPayCommissionsFromTradeBalance(boolean payCommissionsFromTradeBalance) {
+        this.payCommissionsFromTradeBalance = payCommissionsFromTradeBalance;
     }
 }

@@ -13,15 +13,58 @@
 public class Simulation {
     public static void main(String[] args) {
         Strategy strategy = idealOptionsStrategy();
-        strategy.runSimulation();
+//        strategy.runSimulation(38);
+        strategy.runManySimulations();
+//        numberLossToBankrupt();
+//        numberWinsToMillion();
     }
 
     static Strategy idealOptionsStrategy() {
         Strategy optionStrategy = new Strategy("All-In SPY Options", 250);
-        optionStrategy.setRisk(0.01, 0.20);
-        optionStrategy.setReward(0.10, 0.60);
-        optionStrategy.setWinRate(0.35);
+        optionStrategy.setRisk(0.10, 0.20);
+        optionStrategy.setReward(0.30, 0.60);
+        optionStrategy.setWinRate(0.36);
         return optionStrategy;
+    }
+
+    static Strategy autoCryptoStrategy() {
+        Strategy optionStrategy = new Strategy("Automatic Crypto Strategy", 50);
+        optionStrategy.setRisk(0.125, 0.15);
+        optionStrategy.setReward(0.45, 0.50);
+        optionStrategy.setWinRate(0.28);
+        return optionStrategy;
+    }
+
+    static void numberLossToBankrupt() {
+        for (int i = 5; i <= 30; i += 5) {
+            double initialBalance = 250;
+            double countUntilBankrupt = 0;
+            while (initialBalance >= 50) {
+                initialBalance *= 1 - ((double) i / 100);
+                countUntilBankrupt++;
+            }
+            System.out.println("[" + i + "%] # Losses: " + countUntilBankrupt);
+        }
+    }
+
+    static void numberWinsToMillion() {
+        for (int i = 5; i <= 50; i += 5) {
+            double initialBalance = 250;
+            double countUntilMillion = 0;
+            while (initialBalance < 1000000) {
+                initialBalance *= 1 + ((double) i / 100);
+                countUntilMillion++;
+            }
+            System.out.println("[" + i + "%] # Wins: " + countUntilMillion);
+        }
+    }
+
+    static Strategy aggressiveOptionsStrategy() {
+        Strategy optionsStrategy = new Strategy("Aggressive All-In SPY Options", 250);
+        optionsStrategy.setRisk(0.15, 0.30);
+        optionsStrategy.setReward(0.45, 0.90);
+        optionsStrategy.setWinRate(0.35);
+        return optionsStrategy;
     }
 
     static Strategy realisticOptionsStrategy() {
@@ -29,14 +72,6 @@ public class Simulation {
         optionStrategy.setRisk(0.01, 0.20);
         optionStrategy.setReward(0.01, 0.65);
         optionStrategy.setWinRate(0.34);
-        return optionStrategy;
-    }
-
-    static Strategy currentOptionsStrategy() {
-        Strategy optionStrategy = new Strategy("Current Performance", 250);
-        optionStrategy.setRisk(0.15, 0.20);
-        optionStrategy.setReward(0.30, 0.75);
-        optionStrategy.setWinRate(0.28);
         return optionStrategy;
     }
 }
