@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class Strategy {
@@ -53,7 +54,7 @@ public class Strategy {
         int maxRoll = minInt;
         for (int i = minInt; i < maxInt; i++) {
             maxRoll++;
-            if (random.nextInt(minInt, maxRoll + 1) < (maxRoll + 1) / 2) {
+            if (ThreadLocalRandom.current().nextInt(minInt, maxRoll) < (maxRoll + 1) / 2) {
                 break;
             }
         }
@@ -71,7 +72,7 @@ public class Strategy {
             }
             if (isWinningTrade()) {
                 double max = minMax(minWin, maxWin);
-                double percentGain = random.nextDouble(max - minWin) + minWin;
+                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
                 double netGain = (tradeBalance * percentGain);
                 tradeBalance += netGain;
                 totalWinsAccumulated += netGain;
@@ -87,7 +88,7 @@ public class Strategy {
                 }
             } else {
                 double max = maxLoss - (minMax(minLoss, maxLoss) - minLoss) + 0.01;
-                double percentGain = -1 * (random.nextDouble(maxLoss - minLoss) + minLoss);
+                double percentGain = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
                 double netGain = Math.round(tradeBalance * percentGain);
                 tradeBalance += netGain;
                 totalLossesIncurred += netGain;
@@ -111,7 +112,7 @@ public class Strategy {
                 bankBalance -= (tradeCommissions * 2);
             }
             if (logResults) {
-                sleep(1000);
+                sleep(250);
             }
         }
         double finalBalance = tradeBalance + bankBalance;
@@ -137,7 +138,7 @@ public class Strategy {
         double rewardPerTrade = (minWin + maxWin) / 2;
         double riskRewardRatio = Math.round(rewardPerTrade / riskPerTrade);
         System.out.println("Initial Balance: " + printBalance(initialBalance) + " | AVG Risk: " + printPercentage(riskPerTrade) + " | AVG Reward: " + printPercentage(rewardPerTrade) + " | Ratio: " + riskRewardRatio + " | Use Bankroll: " + useBankRoll);
-        for (int w = 20; w <= 40; w += 2) {
+        for (int w = 30; w <= 60; w += 2) {
             int numberTrials = 100;
             double finalBalanceSum = 0, standardDeviation = 0;
             List<Double> finalBalanceList = new ArrayList<>();
