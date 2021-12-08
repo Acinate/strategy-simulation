@@ -1,7 +1,7 @@
 # StrategySimulation
 This strategy uses a Triple-OCO Bracket Order. See: https://tlc.thinkorswim.com/center/howToTos/thinkManual/Trade/Active-Trader/AT-Entering-Orders
 
-Stop loss is set to 25% for all contracts (we use 30% for slippage / market orders)
+Stop loss is set to 10% for all contracts (we use 15% for slippage / market orders)
 Take profits are set at 75%, 100%, and 125% which gives us around a 25% - 100% ROC
 
 We start with an account size of $250. Increasing this initial balance doesn't improve results (actually makes it worse)
