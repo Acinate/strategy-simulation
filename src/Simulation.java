@@ -13,8 +13,8 @@
 public class Simulation {
     public static void main(String[] args) {
         Strategy strategy = idealOptionsStrategy();
-        strategy.runSimulation(45);
-//        strategy.runManySimulations();
+//        strategy.runSimulation();
+        strategy.runManySimulations();
 //        numberLossToBankrupt();
 //        numberWinsToMillion();
     }
@@ -22,8 +22,8 @@ public class Simulation {
     static Strategy idealOptionsStrategy() {
         Strategy optionStrategy = new Strategy("All-In SPY Options", 250);
         optionStrategy.setRisk(0.05, 0.15);
-        optionStrategy.setReward(0.10, 0.40);
-        optionStrategy.setWinRate(0.45);
+        optionStrategy.setReward(0.15, 0.45);
+        optionStrategy.setWinRate(0.55);
         return optionStrategy;
     }
 

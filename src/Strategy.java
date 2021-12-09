@@ -112,7 +112,7 @@ public class Strategy {
                 bankBalance -= (tradeCommissions * 2);
             }
             if (logResults) {
-                sleep(250);
+                sleep(1000);
             }
         }
         double finalBalance = tradeBalance + bankBalance;
