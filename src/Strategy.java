@@ -138,7 +138,7 @@ public class Strategy {
         double rewardPerTrade = (minWin + maxWin) / 2;
         double riskRewardRatio = Math.round(rewardPerTrade / riskPerTrade);
         System.out.println("Initial Balance: " + printBalance(initialBalance) + " | AVG Risk: " + printPercentage(riskPerTrade) + " | AVG Reward: " + printPercentage(rewardPerTrade) + " | Ratio: " + riskRewardRatio + " | Use Bankroll: " + useBankRoll);
-        for (int w = 30; w <= 60; w += 2) {
+        for (int w = 20; w <= 60; w += 2) {
             int numberTrials = 100;
             double finalBalanceSum = 0, standardDeviation = 0;
             List<Double> finalBalanceList = new ArrayList<>();

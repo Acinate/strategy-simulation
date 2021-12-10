@@ -13,17 +13,17 @@
 public class Simulation {
     public static void main(String[] args) {
         Strategy strategy = idealOptionsStrategy();
-//        strategy.runSimulation();
         strategy.runManySimulations();
+        strategy.runSimulation();
 //        numberLossToBankrupt();
 //        numberWinsToMillion();
     }
 
     static Strategy idealOptionsStrategy() {
         Strategy optionStrategy = new Strategy("All-In SPY Options", 250);
-        optionStrategy.setRisk(0.05, 0.15);
-        optionStrategy.setReward(0.15, 0.45);
-        optionStrategy.setWinRate(0.55);
+        optionStrategy.setRisk(0.03, 0.10);
+        optionStrategy.setReward(0.05, 1);
+        optionStrategy.setWinRate(0.05);
         return optionStrategy;
     }
 
