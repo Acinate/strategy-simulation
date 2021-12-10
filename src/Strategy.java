@@ -39,13 +39,24 @@ public class Strategy {
     }
 
     private void initialize() {
-        level = 0;
-        score = 0;
+        level = calculateLevel(initialBalance);
         tradeBalance = initialBalance;
+        score = 0;
         bankBalance = 0;
         totalCommissionsPaid = 0;
         totalLossesIncurred = 0;
         totalWinsAccumulated = 0;
+    }
+
+    private int calculateLevel(double initialBalance) {
+        if (initialBalance > profitLevels[0]) {
+            for (int i=0; i<profitLevels.length; i++) {
+                if (initialBalance <= profitLevels[i]) {
+                    return i+1;
+                }
+            }
+        }
+        return 0;
     }
 
     public double minMax(double min, double max) {
