@@ -6,31 +6,19 @@
 // Anytime we reach a new profitLevel (e.g. 1000, 2000, etc.) we take half of that value and add permanently to our bank-roll
 // After reaching this profitLevel, we increase our level to the next. (e.g. tradeBalance hit 1000, now we target 2000)
 
-// The only time we return to a previous level is when the tradeBalance falls below $80. This is where we have
-// to add more money from our bank-roll. We always only add $250 as this tradeBalance is very volatile.
-// This protects our accounts from the inevitable draw-downs. Worst case scenario we lose 10 trades in a row
-// and lose $250. However, we still have a massive bank-roll that will supply us with unlimited $250 initial balances.
 public class Simulation {
     public static void main(String[] args) {
-        Strategy strategy = idealOptionsStrategy();
+        Strategy strategy = optionsStrategy();
         strategy.runManySimulations();
         strategy.runSimulation(60);
 //        numberLossToBankrupt();
 //        numberWinsToMillion();
     }
 
-    static Strategy idealOptionsStrategy() {
+    static Strategy optionsStrategy() {
         Strategy optionStrategy = new Strategy("Options Trading", 10000);
         optionStrategy.setRisk(0.03, 0.10);
         optionStrategy.setReward(0.05, 0.45);
-        return optionStrategy;
-    }
-
-    static Strategy autoCryptoStrategy() {
-        Strategy optionStrategy = new Strategy("Automatic Crypto Strategy", 50);
-        optionStrategy.setRisk(0.125, 0.15);
-        optionStrategy.setReward(0.45, 0.50);
-        optionStrategy.setWinRate(0.28);
         return optionStrategy;
     }
 
@@ -56,21 +44,5 @@ public class Simulation {
             }
             System.out.println("[" + i + "%] # Wins: " + countUntilMillion);
         }
-    }
-
-    static Strategy aggressiveOptionsStrategy() {
-        Strategy optionsStrategy = new Strategy("Aggressive All-In SPY Options", 250);
-        optionsStrategy.setRisk(0.15, 0.30);
-        optionsStrategy.setReward(0.45, 0.90);
-        optionsStrategy.setWinRate(0.35);
-        return optionsStrategy;
-    }
-
-    static Strategy realisticOptionsStrategy() {
-        Strategy optionStrategy = new Strategy("All-In SPY Options", 250);
-        optionStrategy.setRisk(0.01, 0.20);
-        optionStrategy.setReward(0.01, 0.65);
-        optionStrategy.setWinRate(0.34);
-        return optionStrategy;
     }
 }
