@@ -18,7 +18,9 @@ public class Strategy {
     private double avgContractCost = 80;
     private boolean logResults = true;
     private boolean useBankRoll = true;
+    private boolean payCommissionsFromTradeBalance = true;
 
+    private int maxTrades = 500;
     private int level = 0;
     private int score = 0;
     private double tradeBalance = initialBalance;
@@ -27,7 +29,7 @@ public class Strategy {
     private double totalCommissionsPaid = 0;
     private double totalLossesIncurred = 0;
     private double totalWinsAccumulated = 0;
-    private boolean payCommissionsFromTradeBalance = true;
+    private double takePercentProfitsPercent = 0;
 
     private final Random random = new Random();
     private final double[] profitLevels = new double[]{1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000, 1024000};
@@ -74,7 +76,7 @@ public class Strategy {
 
     public double runSimulation() {
         initialize();
-        for (int tradeCount = 1; tradeCount <= 500; tradeCount++) {
+        for (int tradeCount = 1; tradeCount <= maxTrades; tradeCount++) {
             if (bankBalance > 10000000 || tradeBalance > 10000000) {
                 if (logResults) {
                     System.out.println("Terminated after " + tradeCount + " trades.");
@@ -89,6 +91,11 @@ public class Strategy {
                 totalWinsAccumulated += netGain;
                 if (logResults) {
                     printTrade(tradeCount, netGain, percentGain, tradeBalance, bankBalance, score, level);
+                }
+                if (takePercentProfitsPercent > 0) {
+                    double percentProfits = netGain * takePercentProfitsPercent;
+                    bankBalance += percentProfits;
+                    tradeBalance -= percentProfits;
                 }
                 if (useBankRoll && tradeBalance > profitLevels[level]) {
                     bankBalance += profitLevels[level] / 2;
@@ -231,6 +238,10 @@ public class Strategy {
         this.initialBalance = initialBalance;
     }
 
+    public void setMaxTrades(int maxTrades) {
+        this.maxTrades = maxTrades;
+    }
+
     public void setRisk(double minLoss, double maxLoss) {
         this.minLoss = minLoss;
         this.maxLoss = maxLoss;
@@ -269,5 +280,9 @@ public class Strategy {
 
     public void setPayCommissionsFromTradeBalance(boolean payCommissionsFromTradeBalance) {
         this.payCommissionsFromTradeBalance = payCommissionsFromTradeBalance;
+    }
+
+    public void setTakePercentageProfits(double percent) {
+        this.takePercentProfitsPercent = percent;
     }
 }
