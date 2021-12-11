@@ -9,13 +9,14 @@ import java.util.concurrent.TimeUnit;
 public class Strategy {
     private String name;
     private double initialBalance;
-    private double minLoss = 0.15;
-    private double maxLoss = 0.20;
-    private double minWin = 0.40;
-    private double maxWin = 0.60;
-    private double winRate = 0.33;
+    private double minLoss = 0.05;
+    private double maxLoss = 0.10;
+    private double minWin = 0.10;
+    private double maxWin = 0.50;
+    private double winRate = 0.40;
     private double commission = 0.65;
-    private double avgContractCost = 80;
+    private double avgContractCost = 150;
+    private double taxRate = 0.30;
     private boolean logResults = true;
     private boolean useBankRoll = true;
     private boolean payCommissionsFromTradeBalance = true;
@@ -25,7 +26,7 @@ public class Strategy {
     private int score = 0;
     private double tradeBalance = initialBalance;
     private double bankBalance = 0;
-    private double bankruptBalance = 80;
+    private double bankruptBalance = avgContractCost;
     private double totalCommissionsPaid = 0;
     private double totalLossesIncurred = 0;
     private double totalWinsAccumulated = 0;
@@ -77,7 +78,7 @@ public class Strategy {
     public double runSimulation() {
         initialize();
         for (int tradeCount = 1; tradeCount <= maxTrades; tradeCount++) {
-            if (bankBalance > 10000000 || tradeBalance > 10000000) {
+            if ((bankBalance * (1 - taxRate)) > 10000000 || (tradeBalance * (1 - taxRate)) > 10000000) {
                 if (logResults) {
                     System.out.println("Terminated after " + tradeCount + " trades.");
                 }
@@ -85,7 +86,7 @@ public class Strategy {
             }
             if (isWinningTrade()) {
                 double max = minMax(minWin, maxWin);
-                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
+                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, max);
                 double netGain = (tradeBalance * percentGain);
                 tradeBalance += netGain;
                 totalWinsAccumulated += netGain;
@@ -134,7 +135,7 @@ public class Strategy {
             }
         }
         double finalBalance = tradeBalance + bankBalance;
-        double taxesPaid = finalBalance > 0 ? (finalBalance) * 0.30 : 0;
+        double taxesPaid = finalBalance > 0 ? (finalBalance) * taxRate : 0;
         double finalBalanceAfterTax = finalBalance - taxesPaid;
         if (logResults) {
             System.out.println("===========================================================");
@@ -155,7 +156,7 @@ public class Strategy {
         double riskPerTrade = (minLoss + maxLoss) / 2;
         double rewardPerTrade = (minWin + maxWin) / 2;
         double riskRewardRatio = Math.round(rewardPerTrade / riskPerTrade);
-        System.out.println("Initial Balance: " + printBalance(initialBalance) + " | AVG Risk: " + printPercentage(riskPerTrade) + " | AVG Reward: " + printPercentage(rewardPerTrade) + " | Ratio: " + riskRewardRatio + " | Use Bankroll: " + useBankRoll);
+        System.out.println("Initial Balance: " + printBalance(initialBalance) + " | # of Trades: " + maxTrades + " | AVG Risk: " + printPercentage(riskPerTrade) + " | AVG Reward: " + printPercentage(rewardPerTrade) + " | Ratio: " + riskRewardRatio + " | Use Bankroll: " + useBankRoll);
         for (int w = 20; w <= 60; w += 2) {
             int numberTrials = 100;
             double finalBalanceSum = 0, standardDeviation = 0;
@@ -174,7 +175,8 @@ public class Strategy {
             standardDeviation = Math.sqrt(standardDeviation / numberTrials);
             double finalStandardDeviation = standardDeviation;
             double average = finalBalanceList.stream().filter(fb -> (fb > (median + finalStandardDeviation) || fb < (median + finalStandardDeviation))).reduce(0.0, Double::sum) / numberTrials;
-            System.out.println("WR: " + w + "% | AVG Final Balance: " + printBalance(average));
+            String roicStr = calculateROIC(initialBalance, average);
+            System.out.println("WR: " + w + "% | AVG Final Balance: " + roicStr );
         }
         logResults = true;
     }
@@ -226,7 +228,7 @@ public class Strategy {
     }
 
     private String calculateROIC(double initialBalance, double finalBalance) {
-        double percentChange = Math.round(((finalBalance - initialBalance) / initialBalance * 100));
+        double percentChange = ((finalBalance - initialBalance) / initialBalance);
         return printBalance(finalBalance - initialBalance, percentChange);
     }
 
