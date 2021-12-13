@@ -86,7 +86,7 @@ public class Strategy {
             }
             if (isWinningTrade()) {
                 double max = minMax(minWin, maxWin);
-                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, max);
+                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
                 double netGain = (tradeBalance * percentGain);
                 tradeBalance += netGain;
                 totalWinsAccumulated += netGain;

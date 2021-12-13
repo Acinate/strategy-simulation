@@ -9,9 +9,9 @@ public class Simulation {
 
     static Strategy optionsStrategy() {
         Strategy optionStrategy = new Strategy("Options Trading", 750);
-        optionStrategy.setMaxTrades(500);
-        optionStrategy.setRisk(0.05, 0.10);
-        optionStrategy.setReward(0.10, 0.50);
+        optionStrategy.setMaxTrades(100);
+        optionStrategy.setRisk(0, 0.15);
+        optionStrategy.setReward(0, 0.45);
         optionStrategy.setTakePercentageProfits(0.10);
         return optionStrategy;
     }
