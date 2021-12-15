@@ -152,6 +152,7 @@ public class Strategy {
     }
 
     public void runManySimulations() {
+        double oldWinRate = this.winRate;
         logResults = false;
         double riskPerTrade = (minLoss + maxLoss) / 2;
         double rewardPerTrade = (minWin + maxWin) / 2;
@@ -179,6 +180,7 @@ public class Strategy {
             System.out.println("WR: " + w + "% | AVG Final Balance: " + roicStr );
         }
         logResults = true;
+        this.winRate = oldWinRate;
     }
 
     private boolean isWinningTrade() {
@@ -255,9 +257,8 @@ public class Strategy {
     }
 
     public void setWinRate(double winRate) {
-        if (winRate > 1) winRate = 1;
-        else if (winRate < 0) winRate = 0;
-        this.winRate = winRate;
+        if (winRate >= 1) this.winRate = (winRate / 100);
+        else if (winRate < 0) this.winRate = 0;
     }
 
     public void setCommission(double commission) {
