@@ -1,6 +1,6 @@
 public class Simulation {
     public static void main(String[] args) {
-        Strategy strategy = futuresStrategy();
+        Strategy strategy = optionsStrategy();
         strategy.runManySimulations();
         strategy.runSimulation();
 //        numberLossToBankrupt();
@@ -8,11 +8,12 @@ public class Simulation {
     }
 
     static Strategy optionsStrategy() {
-        Strategy optionStrategy = new Strategy("Options Trading", 750);
-        optionStrategy.setMaxTrades(100);
-        optionStrategy.setWinRate(44);
+        Strategy optionStrategy = new Strategy("Options Trading", 1000);
+        optionStrategy.setMaxTrades(200);
+        optionStrategy.setWinRate(50);
         optionStrategy.setRisk(0, 0.07);
-        optionStrategy.setReward(0, 0.35);
+        optionStrategy.setReward(0, 0.20);
+        optionStrategy.setUseBankRoll(false);
 //        optionStrategy.setTakePercentageProfits(0.10);
         return optionStrategy;
     }
