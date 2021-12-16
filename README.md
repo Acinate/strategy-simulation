@@ -13,3 +13,6 @@ After reaching this profitLevel, we increase our level to the next. (e.g. tradeB
 The only time we return to a previous level is when the tradeBalance falls below $80. This is where we have to add more money from our bank-roll. We always only add $250 as this tradeBalance is very volatile.
 
 This protects our accounts from the inevitable draw-downs. Worst case scenario we lose 10 trades in a row and lose $250. However, we still have a massive bank-roll that will supply us with unlimited $250 initial balances.
+
+## Todo
+* Add contract size. Example: 1.50 per contract. Take balance / contractSize and calculate percent profit off that position size.
