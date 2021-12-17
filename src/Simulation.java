@@ -12,7 +12,7 @@ public class Simulation {
         optionStrategy.setMaxTrades(200);
         optionStrategy.setWinRate(50);
         optionStrategy.setRisk(0, 0.07);
-        optionStrategy.setReward(0, 0.20);
+        optionStrategy.setReward(0, 0.30);
         optionStrategy.setUseBankRoll(false);
 //        optionStrategy.setTakePercentageProfits(0.10);
         return optionStrategy;
