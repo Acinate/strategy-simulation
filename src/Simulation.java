@@ -8,11 +8,11 @@ public class Simulation {
     }
 
     static Strategy optionsStrategy() {
-        Strategy optionStrategy = new Strategy("Options Trading", 1000);
+        Strategy optionStrategy = new Strategy("Options Trading", 700);
         optionStrategy.setMaxTrades(200);
-        optionStrategy.setWinRate(50);
+        optionStrategy.setWinRate(35);
         optionStrategy.setRisk(0, 0.07);
-        optionStrategy.setReward(0, 0.20);
+        optionStrategy.setReward(0, 0.25);
         optionStrategy.setUseBankRoll(false);
 //        optionStrategy.setTakePercentageProfits(0.10);
         return optionStrategy;
