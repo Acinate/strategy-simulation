@@ -14,7 +14,7 @@ public class Strategy {
     private double minWin = 0.10;
     private double maxWin = 0.50;
     private double winRate = 0.40;
-    private double commission = 0.65;
+    private double commission = 0.25;
     private double avgContractCost = 150;
     private double taxRate = 0.30;
     private boolean logResults = true;
@@ -86,7 +86,8 @@ public class Strategy {
             }
             if (isWinningTrade()) {
                 double max = minMax(minWin, maxWin);
-                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
+//                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
+                double percentGain = maxWin;
                 double netGain = (tradeBalance * percentGain);
                 tradeBalance += netGain;
                 totalWinsAccumulated += netGain;
@@ -107,12 +108,13 @@ public class Strategy {
                 }
             } else {
                 double max = maxLoss - (minMax(minLoss, maxLoss) - minLoss) + 0.01;
-                double percentGain = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
-                double netGain = Math.round(tradeBalance * percentGain);
+//                double percentGain = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
+                double percentLoss = -1 * maxLoss;
+                double netGain = Math.round(tradeBalance * percentLoss);
                 tradeBalance += netGain;
                 totalLossesIncurred += netGain;
                 if (logResults) {
-                    printTrade(tradeCount, netGain, percentGain, tradeBalance, bankBalance, score, level);
+                    printTrade(tradeCount, netGain, percentLoss, tradeBalance, bankBalance, score, level);
                 }
                 if (tradeBalance < bankruptBalance) {
                     double amtToDeposit = initialBalance - tradeBalance;
