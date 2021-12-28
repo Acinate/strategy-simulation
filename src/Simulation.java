@@ -20,17 +20,17 @@ public class Simulation {
 
     static Strategy futuresStrategy() {
         Strategy futuresStrategy = new Strategy("Futures Trading", 500);
-        futuresStrategy.setMaxTrades(200);
+        futuresStrategy.setMaxTrades(60);
         futuresStrategy.setWinRate(50);
-        futuresStrategy.setRisk(0, 0.05);
-        futuresStrategy.setReward(0, 0.15);
-        futuresStrategy.setUseBankRoll(true);
+        futuresStrategy.setRisk(0, 0.15);
+        futuresStrategy.setReward(0, 0.45);
+        futuresStrategy.setUseBankRoll(false);
         return futuresStrategy;
     }
 
     static void numberLossToBankrupt() {
         for (int i = 5; i <= 30; i += 5) {
-            double initialBalance = 1000;
+            double initialBalance = 500;
             double countUntilBankrupt = 0;
             while (initialBalance >= 50) {
                 initialBalance *= 1 - ((double) i / 100);

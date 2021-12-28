@@ -108,7 +108,7 @@ public class Strategy {
                 }
             } else {
                 double max = maxLoss - (minMax(minLoss, maxLoss) - minLoss) + 0.01;
-//                double percentGain = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
+//                double percentLoss = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
                 double percentLoss = -1 * maxLoss;
                 double netGain = Math.round(tradeBalance * percentLoss);
                 tradeBalance += netGain;
