@@ -2,7 +2,7 @@ public class Simulation {
     public static void main(String[] args) {
         Strategy strategy = futuresStrategy();
         strategy.runManySimulations();
-        strategy.runSimulation();
+//        strategy.runSimulation();
 //        numberLossToBankrupt();
 //        numberWinsToMillion();
     }
@@ -20,11 +20,11 @@ public class Simulation {
 
     static Strategy futuresStrategy() {
         Strategy futuresStrategy = new Strategy("Futures Trading", 500);
-        futuresStrategy.setMaxTrades(100);
+        futuresStrategy.setMaxTrades(1000);
         futuresStrategy.setWinRate(50);
         futuresStrategy.setRisk(0, 0.05);
         futuresStrategy.setReward(0, 0.125);
-        futuresStrategy.setUseBankRoll(false);
+        futuresStrategy.setUseBankRoll(true);
         return futuresStrategy;
     }
 
