@@ -17,3 +17,4 @@ This protects our accounts from the inevitable draw-downs. Worst case scenario w
 ## Todo
 * Extend Strategy object to create FuturesStrategy object
 * Add setCommissionAmount function
+* Add Market Data to back test on. Random trades on 1 minute chart.
