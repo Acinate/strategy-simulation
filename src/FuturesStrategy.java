@@ -2,7 +2,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class FuturesStrategy extends Strategy {
 
-    double contractPrice = 5;
+    double pointsPrice = 5;
     double pointsRisk = 4;
     double accountRisk = 0.05;
     double[] rMultipleProfitArr = {2};
@@ -23,7 +23,7 @@ public class FuturesStrategy extends Strategy {
                 }
                 break;
             }
-            double riskPerContract = (contractPrice * pointsRisk);
+            double riskPerContract = (pointsPrice * pointsRisk);
             double numberContracts = Math.floor(tradeBalance * accountRisk / riskPerContract);
             if (numberContracts <= 0) {
                 double amtToDeposit = initialBalance - tradeBalance;
@@ -36,7 +36,7 @@ public class FuturesStrategy extends Strategy {
             if (isWinningTrade()) {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleProfitArr.length);
                 double rMultiple = rMultipleProfitArr[rMultipleIndex];
-                double netGain = numberContracts * rMultiple * contractPrice * pointsRisk;
+                double netGain = numberContracts * rMultiple * pointsPrice * pointsRisk;
                 tradeBalance += netGain;
                 totalWinsAccumulated += netGain;
                 if (logResults) {
@@ -57,7 +57,7 @@ public class FuturesStrategy extends Strategy {
             } else {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleLossArr.length);
                 double rMultiple = rMultipleLossArr[rMultipleIndex];
-                double netLoss = numberContracts * rMultiple * contractPrice * pointsRisk * -1;
+                double netLoss = numberContracts * rMultiple * pointsPrice * pointsRisk * -1;
                 tradeBalance += netLoss;
                 totalLossesIncurred += netLoss;
                 if (logResults) {
