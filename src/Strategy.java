@@ -199,7 +199,8 @@ public class Strategy {
         String netGainStr = "Trade Gain: " + printBalance(netGain, percentGain);
         String tradeBalanceStr = "Trade Balance: " + printBalance(tradeBalance);
         String bankBalanceStr = "Bank Balance: " + printBalance(bankBalance);
-        String scoreStr = "Total Balance: " + printBalance(tradeBalance + bankBalance);
+        String roicStr = printPercentage((tradeBalance - initialBalance) / initialBalance);
+        String scoreStr = "Total Balance: " + printBalance(tradeBalance + bankBalance) + " ("+roicStr+")";
         String levelStr = "Level: " + level;
         System.out.format("%8s%3s%34s%3s%28s%3s%28s%3s%34s%3s%12s%1s", tradeCountStr, " | ", netGainStr, " | ", tradeBalanceStr, " | ", bankBalanceStr, " | ", scoreStr, " | ", levelStr, "\n");
     }

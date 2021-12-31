@@ -4,7 +4,7 @@ public class FuturesStrategy extends Strategy {
 
     double contractPrice = 5;
     double pointsRisk = 4;
-    double accountRisk = 0.10;
+    double accountRisk = 0.05;
     double[] rMultipleProfitArr = {2};
     double[] rMultipleLossArr = {1};
     double commission = 0.25;
@@ -25,7 +25,14 @@ public class FuturesStrategy extends Strategy {
             }
             double riskPerContract = (contractPrice * pointsRisk);
             double numberContracts = Math.floor(tradeBalance * accountRisk / riskPerContract);
-//            riskAmount = (tradeBalance * 0.05) % (numberContracts * riskPerContract);
+            if (numberContracts <= 0) {
+                double amtToDeposit = initialBalance - tradeBalance;
+                bankBalance -= amtToDeposit;
+                tradeBalance += amtToDeposit;
+                if (level > 1) {
+                    level--;
+                }
+            }
             if (isWinningTrade()) {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleProfitArr.length);
                 double rMultiple = rMultipleProfitArr[rMultipleIndex];
@@ -56,16 +63,8 @@ public class FuturesStrategy extends Strategy {
                 if (logResults) {
                     printTrade(tradeCount, netLoss, 1, tradeBalance, bankBalance, score, level);
                 }
-                if (tradeBalance < bankruptBalance) {
-                    double amtToDeposit = initialBalance - tradeBalance;
-                    bankBalance -= amtToDeposit;
-                    tradeBalance += amtToDeposit;
-                    if (level > 1) {
-                        level--;
-                    }
-                }
             }
-            double commissionsPerSide = numberContracts * commission;
+            double commissionsPerSide = numberContracts >= 10 ? numberContracts / 10 * commission : numberContracts * commission;
             totalCommissionsPaid += commissionsPerSide;
             if (payCommissionsFromTradeBalance) {
                 tradeBalance -= (commissionsPerSide * 2);
@@ -77,7 +76,7 @@ public class FuturesStrategy extends Strategy {
             }
         }
         double finalBalance = tradeBalance + bankBalance;
-        double taxesPaid = finalBalance > 0 ? (finalBalance) * taxRate : 0;
+        double taxesPaid = finalBalance > 0 ? (finalBalance) * 0.20 : 0;
         double finalBalanceAfterTax = finalBalance - taxesPaid;
         if (logResults) {
             System.out.println("===========================================================");
