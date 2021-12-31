@@ -7,33 +7,33 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class Strategy {
-    private String name;
-    private double initialBalance;
-    private double minLoss = 0.05;
-    private double maxLoss = 0.10;
-    private double minWin = 0.10;
-    private double maxWin = 0.50;
-    private double winRate = 0.40;
-    private double commission = 0.25;
-    private double avgContractCost = 150;
-    private double taxRate = 0.30;
-    private boolean logResults = true;
-    private boolean useBankRoll = true;
-    private boolean payCommissionsFromTradeBalance = true;
+    String name;
+    double initialBalance;
+    double minLoss = 0.05;
+    double maxLoss = 0.10;
+    double minWin = 0.10;
+    double maxWin = 0.50;
+    double winRate = 0.40;
+    double commission = 0.25;
+    double avgContractCost = 150;
+    double taxRate = 0.30;
+    boolean logResults = true;
+    boolean useBankRoll = true;
+    boolean payCommissionsFromTradeBalance = true;
 
-    private int maxTrades = 500;
-    private int level = 0;
-    private int score = 0;
-    private double tradeBalance = initialBalance;
-    private double bankBalance = 0;
-    private double bankruptBalance = avgContractCost;
-    private double totalCommissionsPaid = 0;
-    private double totalLossesIncurred = 0;
-    private double totalWinsAccumulated = 0;
-    private double takePercentProfitsPercent = 0;
+    int maxTrades = 500;
+    int level = 0;
+    int score = 0;
+    double tradeBalance = initialBalance;
+    double bankBalance = 0;
+    double bankruptBalance = avgContractCost;
+    double totalCommissionsPaid = 0;
+    double totalLossesIncurred = 0;
+    double totalWinsAccumulated = 0;
+    double takePercentProfitsPercent = 0;
 
-    private final Random random = new Random();
-    private final double[] profitLevels = new double[]{1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000, 1024000};
+    final Random random = new Random();
+    final double[] profitLevels = new double[]{10000, 50000, 100000, 250000};
 
 
     public Strategy(String name, double initialBalance) {
@@ -41,7 +41,7 @@ public class Strategy {
         this.initialBalance = initialBalance;
     }
 
-    private void initialize() {
+    void initialize() {
         level = calculateLevel(initialBalance);
         tradeBalance = initialBalance;
         score = 0;
@@ -51,7 +51,7 @@ public class Strategy {
         totalWinsAccumulated = 0;
     }
 
-    private int calculateLevel(double initialBalance) {
+    int calculateLevel(double initialBalance) {
         if (initialBalance > profitLevels[0]) {
             for (int i=0; i<profitLevels.length; i++) {
                 if (initialBalance <= profitLevels[i]) {
@@ -86,8 +86,8 @@ public class Strategy {
             }
             if (isWinningTrade()) {
                 double max = minMax(minWin, maxWin);
-//                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
-                double percentGain = maxWin;
+                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
+//                double percentGain = maxWin;
                 double netGain = (tradeBalance * percentGain);
                 tradeBalance += netGain;
                 totalWinsAccumulated += netGain;
@@ -108,8 +108,8 @@ public class Strategy {
                 }
             } else {
                 double max = maxLoss - (minMax(minLoss, maxLoss) - minLoss) + 0.01;
-//                double percentLoss = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
-                double percentLoss = -1 * maxLoss;
+                double percentLoss = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
+//                double percentLoss = -1 * maxLoss;
                 double netGain = Math.round(tradeBalance * percentLoss);
                 tradeBalance += netGain;
                 totalLossesIncurred += netGain;
@@ -185,7 +185,7 @@ public class Strategy {
         this.winRate = oldWinRate;
     }
 
-    private boolean isWinningTrade() {
+    boolean isWinningTrade() {
         score = random.nextInt(101);
         return score <= (winRate * 100);
     }
@@ -194,7 +194,7 @@ public class Strategy {
     private final String ANSI_GREEN = "\u001B[32m";
     private final String ANSI_RESET = "\u001B[0m";
 
-    private void printTrade(int tradeCount, double netGain, double percentGain, double tradeBalance, double bankBalance, double score, double level) {
+    void printTrade(int tradeCount, double netGain, double percentGain, double tradeBalance, double bankBalance, double score, double level) {
         String tradeCountStr = "[" + tradeCount + "] " + (netGain > 0 ? ANSI_GREEN + "W" + ANSI_RESET : ANSI_RED + "L" + ANSI_RESET);
         String netGainStr = "Trade Gain: " + printBalance(netGain, percentGain);
         String tradeBalanceStr = "Trade Balance: " + printBalance(tradeBalance);
@@ -204,13 +204,13 @@ public class Strategy {
         System.out.format("%8s%3s%34s%3s%28s%3s%28s%3s%34s%3s%12s%1s", tradeCountStr, " | ", netGainStr, " | ", tradeBalanceStr, " | ", bankBalanceStr, " | ", scoreStr, " | ", levelStr, "\n");
     }
 
-    private String printBalance(double balance) {
+    String printBalance(double balance) {
         NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
         String textColor = balance > 0 ? ANSI_GREEN : ANSI_RED;
         return textColor + numberFormat.format(balance) + ANSI_RESET;
     }
 
-    private String printBalance(double balance, double percentProfit) {
+    String printBalance(double balance, double percentProfit) {
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
         NumberFormat percentFormat = NumberFormat.getPercentInstance();
         String balanceString = currencyFormat.format(balance);
@@ -218,12 +218,12 @@ public class Strategy {
         return plusStr + balanceString + " (" + plusStr + percentFormat.format(percentProfit) + ")" + ANSI_RESET;
     }
 
-    private String printPercentage(double percent) {
+    String printPercentage(double percent) {
         NumberFormat percentFormat = NumberFormat.getPercentInstance();
         return percentFormat.format(percent);
     }
 
-    private void sleep(int ms) {
+    void sleep(int ms) {
         try {
             TimeUnit.MILLISECONDS.sleep(ms);
         } catch (Exception e) {
@@ -231,7 +231,7 @@ public class Strategy {
         }
     }
 
-    private String calculateROIC(double initialBalance, double finalBalance) {
+    String calculateROIC(double initialBalance, double finalBalance) {
         double percentChange = ((finalBalance - initialBalance) / initialBalance);
         return printBalance(finalBalance - initialBalance, percentChange);
     }
