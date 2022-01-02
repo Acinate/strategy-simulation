@@ -27,7 +27,7 @@ public class Simulation {
     }
 
     static void numberLossToBankrupt() {
-        for (int i = 5; i <= 30; i += 5) {
+        for (int i = 1; i <= 15; i += 1) {
             double initialBalance = 500;
             double countUntilBankrupt = 0;
             while (initialBalance >= 50) {

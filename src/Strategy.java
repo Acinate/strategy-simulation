@@ -166,6 +166,10 @@ public class Strategy {
             List<Double> finalBalanceList = new ArrayList<>();
             for (int i = 0; i < numberTrials; i++) {
                 double finalBalance = runSimulation(w);
+                if (finalBalance == -1) {
+                    System.out.println("Initial balance not high enough for risk employed.");
+                    return;
+                }
                 finalBalanceList.add(finalBalance);
                 finalBalanceSum += finalBalance;
             }

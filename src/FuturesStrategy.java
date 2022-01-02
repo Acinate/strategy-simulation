@@ -6,7 +6,7 @@ public class FuturesStrategy extends Strategy {
     double accountRisk = 0.05;
     double[] rMultipleLossArr = {-1};
     double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
-    double commission = 0.22;
+    double commission = 0;
 
     public FuturesStrategy(String name, double initialBalance) {
         super(name, initialBalance);
@@ -15,6 +15,14 @@ public class FuturesStrategy extends Strategy {
 
     public double runSimulation() {
         initialize();
+
+        if (initialBalance * accountRisk < 20) {
+            if (logResults) {
+                System.out.println("Initial balance not high enough for risk employed.");
+            }
+            return -1;
+        }
+
         for (int tradeCount = 1; tradeCount <= maxTrades; tradeCount++) {
             if ((bankBalance * (1 - taxRate)) > 10000000 || (tradeBalance * (1 - taxRate)) > 10000000) {
                 if (logResults) {
@@ -23,7 +31,9 @@ public class FuturesStrategy extends Strategy {
                 break;
             }
 
-            double pricePerContract = tradeBalance * accountRisk >= 200 ? 50 : 5;
+            boolean useMicroContract = tradeBalance * accountRisk < 200;
+            double pricePerContract = useMicroContract ? 5 : 50;
+            commission = useMicroContract ? 0.22 : 0.79;
             double riskPerContract = (pricePerContract * pointsRisk);
             double numberContracts = Math.floor((tradeBalance * accountRisk) / riskPerContract);
 
