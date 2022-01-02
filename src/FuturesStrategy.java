@@ -5,8 +5,8 @@ public class FuturesStrategy extends Strategy {
     double pointsPrice = 5;
     double pointsRisk = 4;
     double accountRisk = 0.05;
-    double[] rMultipleProfitArr = {2};
     double[] rMultipleLossArr = {1};
+    double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
     double commission = 0.25;
 
     public FuturesStrategy(String name, double initialBalance) {
@@ -33,37 +33,20 @@ public class FuturesStrategy extends Strategy {
                     level--;
                 }
             }
+
+            double netGain;
             if (isWinningTrade()) {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleProfitArr.length);
                 double rMultiple = rMultipleProfitArr[rMultipleIndex];
-                double netGain = numberContracts * rMultiple * pointsPrice * pointsRisk;
-                tradeBalance += netGain;
-                totalWinsAccumulated += netGain;
-                if (logResults) {
-                    printTrade(tradeCount, netGain, rMultiple, tradeBalance, bankBalance, score, level);
-                }
-                if (takePercentProfitsPercent > 0) {
-                    double percentProfits = netGain * takePercentProfitsPercent;
-                    bankBalance += percentProfits;
-                    tradeBalance -= percentProfits;
-                }
-                if (useBankRoll && tradeBalance > profitLevels[level]) {
-                    bankBalance += profitLevels[level] / 2;
-                    tradeBalance -= profitLevels[level] / 2;
-                    if (level < profitLevels.length - 1) {
-                        level++;
-                    }
-                }
+                netGain = numberContracts * rMultiple * pointsPrice * pointsRisk;
             } else {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleLossArr.length);
                 double rMultiple = rMultipleLossArr[rMultipleIndex];
-                double netLoss = numberContracts * rMultiple * pointsPrice * pointsRisk * -1;
-                tradeBalance += netLoss;
-                totalLossesIncurred += netLoss;
-                if (logResults) {
-                    printTrade(tradeCount, netLoss, 1, tradeBalance, bankBalance, score, level);
-                }
+                netGain = -1 * numberContracts * rMultiple * pointsPrice * pointsRisk;
             }
+            tradeBalance += netGain;
+            totalLossesIncurred += netGain;
+
             double commissionsPerSide = numberContracts >= 10 ? numberContracts / 10 * commission : numberContracts * commission;
             totalCommissionsPaid += commissionsPerSide;
             if (payCommissionsFromTradeBalance) {
@@ -71,7 +54,9 @@ public class FuturesStrategy extends Strategy {
             } else {
                 bankBalance -= (commissionsPerSide * 2);
             }
+
             if (logResults) {
+                printTrade(tradeCount, netGain, 1, tradeBalance, bankBalance, score, level);
                 sleep(1000);
             }
         }
