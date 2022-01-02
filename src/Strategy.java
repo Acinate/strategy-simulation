@@ -215,8 +215,16 @@ public class Strategy {
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
         NumberFormat percentFormat = NumberFormat.getPercentInstance();
         String balanceString = currencyFormat.format(balance);
-        String plusStr = balance > 0 ? ANSI_GREEN + "+" : ANSI_RED + "";
-        return plusStr + balanceString + " (" + plusStr + percentFormat.format(percentProfit) + ")" + ANSI_RESET;
+        String plusBalanceStr = balance > 0 ? ANSI_GREEN + "+" : ANSI_RED + "";
+        String balanceStr = plusBalanceStr + balanceString + ANSI_RESET;
+        String plusPercentStr = percentProfit > 0 ? ANSI_GREEN + "(+" : ANSI_RED + "(";
+        String percentStr = plusPercentStr + percentFormat.format(percentProfit) + ")" + ANSI_RESET;
+        return balanceStr + " " + percentStr;
+    }
+
+    String printRatio(double rValue) {
+        String rValueStr = rValue > 0 ? ANSI_GREEN + "(+" : ANSI_RED + "(" ;
+        return rValueStr + rValue + "R)" + ANSI_RESET;
     }
 
     String printPercentage(double percent) {

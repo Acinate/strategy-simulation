@@ -2,12 +2,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class FuturesStrategy extends Strategy {
 
-    double pointsPrice = 5;
     double pointsRisk = 4;
     double accountRisk = 0.05;
-    double[] rMultipleLossArr = {1};
+    double[] rMultipleLossArr = {-1};
     double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
-    double commission = 0.25;
+    double commission = 0.22;
 
     public FuturesStrategy(String name, double initialBalance) {
         super(name, initialBalance);
@@ -23,45 +22,44 @@ public class FuturesStrategy extends Strategy {
                 }
                 break;
             }
-            double riskPerContract = (pointsPrice * pointsRisk);
-            double numberContracts = Math.floor(tradeBalance * accountRisk / riskPerContract);
+
+            double pricePerContract = tradeBalance * accountRisk >= 200 ? 50 : 5;
+            double riskPerContract = (pricePerContract * pointsRisk);
+            double numberContracts = Math.floor((tradeBalance * accountRisk) / riskPerContract);
+
             if (numberContracts <= 0) {
                 double amtToDeposit = initialBalance - tradeBalance;
                 bankBalance -= amtToDeposit;
                 tradeBalance += amtToDeposit;
-                if (level > 1) {
-                    level--;
-                }
             }
 
             double netGain;
+            double rMultiple;
             if (isWinningTrade()) {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleProfitArr.length);
-                double rMultiple = rMultipleProfitArr[rMultipleIndex];
-                netGain = numberContracts * rMultiple * pointsPrice * pointsRisk;
+                rMultiple = rMultipleProfitArr[rMultipleIndex];
+                netGain = numberContracts * rMultiple * pricePerContract * pointsRisk;
+                totalWinsAccumulated += netGain;
             } else {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleLossArr.length);
-                double rMultiple = rMultipleLossArr[rMultipleIndex];
-                netGain = -1 * numberContracts * rMultiple * pointsPrice * pointsRisk;
+                rMultiple = rMultipleLossArr[rMultipleIndex];
+                netGain = numberContracts * rMultiple * pricePerContract * pointsRisk;
+                totalLossesIncurred += netGain;
             }
             tradeBalance += netGain;
-            totalLossesIncurred += netGain;
 
-            double commissionsPerSide = numberContracts >= 10 ? numberContracts / 10 * commission : numberContracts * commission;
-            totalCommissionsPaid += commissionsPerSide;
-            if (payCommissionsFromTradeBalance) {
-                tradeBalance -= (commissionsPerSide * 2);
-            } else {
-                bankBalance -= (commissionsPerSide * 2);
-            }
+            double commissionsPerSide = numberContracts * commission;
+            double commissionsPaid = commissionsPerSide * 2;
+            totalCommissionsPaid += commissionsPaid;
+            tradeBalance -= commissionsPaid;
 
             if (logResults) {
-                printTrade(tradeCount, netGain, 1, tradeBalance, bankBalance, score, level);
+                printTrade(tradeCount, netGain, rMultiple, tradeBalance, numberContracts);
                 sleep(1000);
             }
         }
         double finalBalance = tradeBalance + bankBalance;
-        double taxesPaid = finalBalance > 0 ? (finalBalance) * 0.20 : 0;
+        double taxesPaid = finalBalance > 0 ? (finalBalance) * 0.25 : 0;
         double finalBalanceAfterTax = finalBalance - taxesPaid;
         if (logResults) {
             System.out.println("===========================================================");
@@ -70,5 +68,14 @@ public class FuturesStrategy extends Strategy {
             System.out.println("===========================================================");
         }
         return finalBalanceAfterTax;
+    }
+
+    void printTrade(int tradeCount, double netGain, double rValue, double tradeBalance, double numberContracts) {
+        String tradeCountStr = "[" + tradeCount + "] " + (netGain > 0 ? ANSI_GREEN + "W" + ANSI_RESET : ANSI_RED + "L" + ANSI_RESET);
+        String tradeGainStr = "Trade Gain: " + printBalance(netGain) + " " + printRatio(rValue);
+        String accountBalanceStr = "Account Balance: " + printBalance(tradeBalance, (tradeBalance - initialBalance) / initialBalance);
+        String numberContractsStr = "# Contracts: " + (int)Math.floor(numberContracts);
+        String commissionsPaidStr = "Commissions paid: " + printBalance(-1 * numberContracts * commission * 2);
+        System.out.format("%8s%3s%24s%3s%28s%3s%14s%3s%24s%1s", tradeCountStr, " | ", tradeGainStr, " | ", accountBalanceStr, " | ", numberContractsStr, " | ", commissionsPaidStr, "\n");
     }
 }
