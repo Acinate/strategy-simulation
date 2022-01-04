@@ -4,7 +4,7 @@ public class FuturesStrategy extends Strategy {
 
     double pointsRisk = 4;
     double accountRisk = 0.05;
-    double[] rMultipleLossArr = {-1};
+    double[] rMultipleLossArr = {-0.5, -1};
     double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
     double commission = 0;
 
@@ -84,7 +84,7 @@ public class FuturesStrategy extends Strategy {
         String tradeCountStr = "[" + tradeCount + "] " + (netGain > 0 ? ANSI_GREEN + "W" + ANSI_RESET : ANSI_RED + "L" + ANSI_RESET);
         String tradeGainStr = "Trade Gain: " + printBalance(netGain) + " " + printRatio(rValue);
         String accountBalanceStr = "Account Balance: " + printBalance(tradeBalance, (tradeBalance - initialBalance) / initialBalance);
-        String numberContractsStr = "# Contracts: " + (int)Math.floor(numberContracts);
+        String numberContractsStr = "# Contracts: " + (int) Math.floor(numberContracts);
         String commissionsPaidStr = "Commissions paid: " + printBalance(-1 * numberContracts * commission * 2);
         System.out.format("%8s%3s%24s%3s%28s%3s%14s%3s%24s%1s", tradeCountStr, " | ", tradeGainStr, " | ", accountBalanceStr, " | ", numberContractsStr, " | ", commissionsPaidStr, "\n");
     }
