@@ -4,7 +4,7 @@ public class FuturesStrategy extends Strategy {
 
     double pointsRisk = 4;
     double accountRisk = 0.05;
-    double[] rMultipleLossArr = {-0.5, -1};
+    double[] rMultipleLossArr = {-0.75, -1};
     double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
     double commission = 0;
 

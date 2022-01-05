@@ -20,7 +20,7 @@ public class Simulation {
 
     static Strategy futuresStrategy() {
         Strategy futuresStrategy = new FuturesStrategy("Futures Trading", 500);
-        futuresStrategy.setMaxTrades(300);
+        futuresStrategy.setMaxTrades(200);
         futuresStrategy.setWinRate(65);
         futuresStrategy.setUseBankRoll(false);
         return futuresStrategy;
