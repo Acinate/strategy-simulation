@@ -15,6 +15,7 @@ The only time we return to a previous level is when the tradeBalance falls below
 This protects our accounts from the inevitable draw-downs. Worst case scenario we lose 10 trades in a row and lose $250. However, we still have a massive bank-roll that will supply us with unlimited $250 initial balances.
 
 ## Todo
-* Extend Strategy object to create FuturesStrategy object
+* ~~Extend Strategy object to create FuturesStrategy object~~
+* Extend Strategy object to create CryptoStrategy object
 * Add setCommissionAmount function
 * Add Market Data to back test on. Random trades on 1 minute chart.
