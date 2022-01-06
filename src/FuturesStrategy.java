@@ -6,7 +6,6 @@ public class FuturesStrategy extends Strategy {
     double riskPerTrade = 0.05;
     double[] rMultipleLossArr = {-0.75, -1};
     double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
-    double commission = 0;
 
     public FuturesStrategy(String name, double initialBalance) {
         super(name, initialBalance);
@@ -60,8 +59,8 @@ public class FuturesStrategy extends Strategy {
 
             double commissionsPerSide = numberContracts * commission;
             double commissionsPaid = commissionsPerSide * 2;
-            totalCommissionsPaid += commissionsPaid;
             tradeBalance -= commissionsPaid;
+            totalCommissionsPaid += commissionsPaid;
 
             if (logResults) {
                 printTrade(tradeCount, netGain, rMultiple, tradeBalance, numberContracts);

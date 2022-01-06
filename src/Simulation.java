@@ -1,6 +1,6 @@
 public class Simulation {
     public static void main(String[] args) {
-        Strategy strategy = cryptoStrategy();
+        Strategy strategy = futuresStrategy();
         strategy.runManySimulations();
         strategy.runSimulation();
 //        numberLossToBankrupt();
