@@ -9,16 +9,10 @@ import java.util.concurrent.TimeUnit;
 public class Strategy {
     String name;
     double initialBalance;
-    double minLoss = 0.05;
-    double maxLoss = 0.10;
-    double minWin = 0.10;
-    double maxWin = 0.50;
-    double winRate = 0.40;
-    double commission = 0.25;
-    double avgContractCost = 150;
+    double winRate = Double.NaN;
+    double commission = Double.NaN;
     double taxRate = 0.30;
     boolean logResults = true;
-    boolean useBankRoll = true;
     boolean payCommissionsFromTradeBalance = true;
 
     int maxTrades = 500;
@@ -26,7 +20,7 @@ public class Strategy {
     int score = 0;
     double tradeBalance = initialBalance;
     double bankBalance = 0;
-    double bankruptBalance = avgContractCost;
+    double bankruptBalance = 0;
     double totalCommissionsPaid = 0;
     double totalLossesIncurred = 0;
     double totalWinsAccumulated = 0;
@@ -76,77 +70,7 @@ public class Strategy {
     }
 
     public double runSimulation() {
-        resetBalances();
-
-        for (int tradeCount = 1; tradeCount <= maxTrades; tradeCount++) {
-            if (isMaxBalanceReached()) {
-                if (logResults) {
-                    System.out.println("Terminated after " + tradeCount + " trades.");
-                }
-                break;
-            }
-
-            if (isWinningTrade()) {
-                double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
-//                double percentGain = maxWin;
-                double netGain = (tradeBalance * percentGain);
-                tradeBalance += netGain;
-                totalWinsAccumulated += netGain;
-                if (logResults) {
-                    printTrade(tradeCount, netGain, percentGain, tradeBalance, bankBalance, score, level);
-                }
-                if (takePercentProfitsPercent > 0) {
-                    double percentProfits = netGain * takePercentProfitsPercent;
-                    bankBalance += percentProfits;
-                    tradeBalance -= percentProfits;
-                }
-                if (useBankRoll && tradeBalance > profitLevels[level]) {
-                    bankBalance += profitLevels[level] / 2;
-                    tradeBalance -= profitLevels[level] / 2;
-                    if (level < profitLevels.length - 1) {
-                        level++;
-                    }
-                }
-            } else {
-                double max = maxLoss - (minMax(minLoss, maxLoss) - minLoss) + 0.01;
-                double percentLoss = -1 * (ThreadLocalRandom.current().nextDouble(minLoss, maxLoss));
-//                double percentLoss = -1 * maxLoss;
-                double netGain = Math.round(tradeBalance * percentLoss);
-                tradeBalance += netGain;
-                totalLossesIncurred += netGain;
-                if (logResults) {
-                    printTrade(tradeCount, netGain, percentLoss, tradeBalance, bankBalance, score, level);
-                }
-                if (tradeBalance < bankruptBalance) {
-                    double amtToDeposit = initialBalance - tradeBalance;
-                    bankBalance -= amtToDeposit;
-                    tradeBalance += amtToDeposit;
-                    if (level > 1) {
-                        level--;
-                    }
-                }
-            }
-            double tradeCommissions = Math.round((tradeBalance / avgContractCost) * commission);
-            totalCommissionsPaid += tradeCommissions;
-            if (payCommissionsFromTradeBalance) {
-                tradeBalance -= (tradeCommissions * 2);
-            } else {
-                bankBalance -= (tradeCommissions * 2);
-            }
-            if (logResults) {
-                sleep(1000);
-            }
-        }
-        double finalBalance = tradeBalance + bankBalance;
-        double taxesPaid = finalBalance > 0 ? (finalBalance) * taxRate : 0;
-        double finalBalanceAfterTax = finalBalance - taxesPaid;
-        if (logResults) {
-            System.out.println("===========================================================");
-            System.out.println("Final Balance: " + printBalance(finalBalance) + " | After Taxes: " + printBalance(finalBalanceAfterTax) + " | Taxes Paid: " + printBalance(taxesPaid) + " | ROIC: " + calculateROIC(initialBalance, finalBalanceAfterTax));
-            System.out.println("Total Wins: " + printBalance(totalWinsAccumulated) + " | Total Losses: " + printBalance(totalLossesIncurred) + " Total Commissions: " + printBalance(totalCommissionsPaid));
-            System.out.println("===========================================================");
-        }
-        return finalBalanceAfterTax;
+        return -1;
     }
 
     public double runSimulation(int winRate) {
@@ -157,10 +81,6 @@ public class Strategy {
     public void runManySimulations() {
         double oldWinRate = this.winRate;
         logResults = false;
-        double riskPerTrade = (minLoss + maxLoss) / 2;
-        double rewardPerTrade = (minWin + maxWin) / 2;
-        double riskRewardRatio = Math.round(rewardPerTrade / riskPerTrade);
-        System.out.println("Initial Balance: " + printBalance(initialBalance) + " | # of Trades: " + maxTrades + " | AVG Risk: " + printPercentage(riskPerTrade) + " | AVG Reward: " + printPercentage(rewardPerTrade) + " | Ratio: " + riskRewardRatio + " | Use Bankroll: " + useBankRoll);
         for (int w = 20; w <= 60; w += 2) {
             int numberTrials = 100;
             double finalBalanceSum = 0, standardDeviation = 0;
@@ -203,15 +123,12 @@ public class Strategy {
     final String ANSI_GREEN = "\u001B[32m";
     final String ANSI_RESET = "\u001B[0m";
 
-    void printTrade(int tradeCount, double netGain, double percentGain, double tradeBalance, double bankBalance, double score, double level) {
+    void printTrade(int tradeCount, double netGain, double rValue, double tradeBalance) {
         String tradeCountStr = "[" + tradeCount + "] " + (netGain > 0 ? ANSI_GREEN + "W" + ANSI_RESET : ANSI_RED + "L" + ANSI_RESET);
-        String netGainStr = "Trade Gain: " + printBalance(netGain, percentGain);
-        String tradeBalanceStr = "Trade Balance: " + printBalance(tradeBalance);
-        String bankBalanceStr = "Bank Balance: " + printBalance(bankBalance);
-        String roicStr = printPercentage((tradeBalance - initialBalance) / initialBalance);
-        String scoreStr = "Total Balance: " + printBalance(tradeBalance + bankBalance) + " ("+roicStr+")";
-        String levelStr = "Level: " + level;
-        System.out.format("%8s%3s%34s%3s%28s%3s%28s%3s%34s%3s%12s%1s", tradeCountStr, " | ", netGainStr, " | ", tradeBalanceStr, " | ", bankBalanceStr, " | ", scoreStr, " | ", levelStr, "\n");
+        String tradeGainStr = "Trade Gain: " + printBalance(netGain) + " " + printRatio(rValue);
+        String accountBalanceStr = "Account Balance: " + printBalance(tradeBalance, (tradeBalance - initialBalance) / initialBalance);
+        String commissionsPaidStr = "Commissions paid: " + printBalance(-1 * commission);
+        System.out.format("%8s%3s%24s%3s%28s%3s%24s%1s", tradeCountStr, " | ", tradeGainStr, " | ", accountBalanceStr, " | ", commissionsPaidStr, "\n");
     }
 
     void printTrade(int tradeCount, double netGain, double rValue, double tradeBalance, double numberContracts) {
@@ -221,13 +138,6 @@ public class Strategy {
         String numberContractsStr = "# Contracts: " + (int) Math.floor(numberContracts);
         String commissionsPaidStr = "Commissions paid: " + printBalance(-1 * numberContracts * commission * 2);
         System.out.format("%8s%3s%24s%3s%28s%3s%14s%3s%24s%1s", tradeCountStr, " | ", tradeGainStr, " | ", accountBalanceStr, " | ", numberContractsStr, " | ", commissionsPaidStr, "\n");
-    }
-
-    void printTrade(int tradeCount, double netGain, double rValue, double tradeBalance) {
-        String tradeCountStr = "[" + tradeCount + "] " + (netGain > 0 ? ANSI_GREEN + "W" + ANSI_RESET : ANSI_RED + "L" + ANSI_RESET);
-        String tradeGainStr = "Trade Gain: " + printBalance(netGain) + " " + printRatio(rValue);
-        String accountBalanceStr = "Account Balance: " + printBalance(tradeBalance, (tradeBalance - initialBalance) / initialBalance);
-        System.out.format("%8s%3s%24s%3s%28s%1s", tradeCountStr, " | ", tradeGainStr, " | ", accountBalanceStr, "\n");
     }
 
     String printBalance(double balance) {
@@ -270,58 +180,12 @@ public class Strategy {
         return printBalance(finalBalance - initialBalance, percentChange);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setInitialBalance(double initialBalance) {
-        this.initialBalance = initialBalance;
-    }
-
     public void setMaxTrades(int maxTrades) {
         this.maxTrades = maxTrades;
-    }
-
-    public void setRisk(double minLoss, double maxLoss) {
-        this.minLoss = minLoss;
-        this.maxLoss = maxLoss;
-    }
-
-    public void setReward(double minWin, double maxWin) {
-        this.minWin = minWin;
-        this.maxWin = maxWin;
     }
 
     public void setWinRate(double winRate) {
         if (winRate >= 1) this.winRate = (winRate / 100);
         else if (winRate < 0) this.winRate = 0;
-    }
-
-    public void setCommission(double commission) {
-        this.commission = commission;
-    }
-
-    public void setAvgContractCost(double avgContractCost) {
-        this.avgContractCost = avgContractCost;
-    }
-
-    public void setLogResults(boolean logResults) {
-        this.logResults = logResults;
-    }
-
-    public void setUseBankRoll(boolean useBankRoll) {
-        this.useBankRoll = useBankRoll;
-    }
-
-    public void setBankruptBalance(double bankruptBalance) {
-        this.bankruptBalance = bankruptBalance;
-    }
-
-    public void setPayCommissionsFromTradeBalance(boolean payCommissionsFromTradeBalance) {
-        this.payCommissionsFromTradeBalance = payCommissionsFromTradeBalance;
-    }
-
-    public void setTakePercentageProfits(double percent) {
-        this.takePercentProfitsPercent = percent;
     }
 }

@@ -9,7 +9,7 @@ public class Simulation {
 
     static Strategy cryptoStrategy() {
         Strategy optionStrategy = new CryptoStrategy("Crypto Trading", 500);
-        optionStrategy.setMaxTrades(100);
+        optionStrategy.setMaxTrades(200);
         optionStrategy.setWinRate(50);
         return optionStrategy;
     }
@@ -17,8 +17,7 @@ public class Simulation {
     static Strategy futuresStrategy() {
         Strategy futuresStrategy = new FuturesStrategy("Futures Trading", 500);
         futuresStrategy.setMaxTrades(200);
-        futuresStrategy.setWinRate(65);
-        futuresStrategy.setUseBankRoll(false);
+        futuresStrategy.setWinRate(50);
         return futuresStrategy;
     }
 

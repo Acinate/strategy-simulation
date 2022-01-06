@@ -2,6 +2,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class CryptoStrategy extends Strategy {
 
+    int leverage = 5;
     double riskPerTrade = 0.05;
     double[] rMultipleLossArr = {-0.75, -1};
     double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
@@ -30,6 +31,8 @@ public class CryptoStrategy extends Strategy {
                 }
             }
 
+            commission = tradeBalance * leverage * 0.00075 * 2;
+
             double netGain;
             double rMultiple;
             if (isWinningTrade()) {
@@ -52,13 +55,9 @@ public class CryptoStrategy extends Strategy {
                 }
             }
 
-            double tradeCommissions = Math.round((tradeBalance / avgContractCost) * commission);
-            totalCommissionsPaid += tradeCommissions;
-            if (payCommissionsFromTradeBalance) {
-                tradeBalance -= (tradeCommissions * 2);
-            } else {
-                bankBalance -= (tradeCommissions * 2);
-            }
+            tradeBalance -= (commission);
+            totalCommissionsPaid += commission;
+
             if (logResults) {
                 sleep(1000);
             }
