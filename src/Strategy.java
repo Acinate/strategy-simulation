@@ -41,7 +41,7 @@ public class Strategy {
         this.initialBalance = initialBalance;
     }
 
-    void initialize() {
+    void resetBalances() {
         level = calculateLevel(initialBalance);
         tradeBalance = initialBalance;
         score = 0;
@@ -76,16 +76,17 @@ public class Strategy {
     }
 
     public double runSimulation() {
-        initialize();
+        resetBalances();
+
         for (int tradeCount = 1; tradeCount <= maxTrades; tradeCount++) {
-            if ((bankBalance * (1 - taxRate)) > 10000000 || (tradeBalance * (1 - taxRate)) > 10000000) {
+            if (isMaxBalanceReached()) {
                 if (logResults) {
                     System.out.println("Terminated after " + tradeCount + " trades.");
                 }
                 break;
             }
+
             if (isWinningTrade()) {
-                double max = minMax(minWin, maxWin);
                 double percentGain = ThreadLocalRandom.current().nextDouble(minWin, maxWin);
 //                double percentGain = maxWin;
                 double netGain = (tradeBalance * percentGain);
@@ -194,6 +195,10 @@ public class Strategy {
         return score <= (winRate * 100);
     }
 
+    boolean isMaxBalanceReached() {
+        return (bankBalance * (1 - taxRate)) > 10000000 || (tradeBalance * (1 - taxRate)) > 10000000;
+    }
+
     final String ANSI_RED = "\u001B[31m";
     final String ANSI_GREEN = "\u001B[32m";
     final String ANSI_RESET = "\u001B[0m";
@@ -207,6 +212,22 @@ public class Strategy {
         String scoreStr = "Total Balance: " + printBalance(tradeBalance + bankBalance) + " ("+roicStr+")";
         String levelStr = "Level: " + level;
         System.out.format("%8s%3s%34s%3s%28s%3s%28s%3s%34s%3s%12s%1s", tradeCountStr, " | ", netGainStr, " | ", tradeBalanceStr, " | ", bankBalanceStr, " | ", scoreStr, " | ", levelStr, "\n");
+    }
+
+    void printTrade(int tradeCount, double netGain, double rValue, double tradeBalance, double numberContracts) {
+        String tradeCountStr = "[" + tradeCount + "] " + (netGain > 0 ? ANSI_GREEN + "W" + ANSI_RESET : ANSI_RED + "L" + ANSI_RESET);
+        String tradeGainStr = "Trade Gain: " + printBalance(netGain) + " " + printRatio(rValue);
+        String accountBalanceStr = "Account Balance: " + printBalance(tradeBalance, (tradeBalance - initialBalance) / initialBalance);
+        String numberContractsStr = "# Contracts: " + (int) Math.floor(numberContracts);
+        String commissionsPaidStr = "Commissions paid: " + printBalance(-1 * numberContracts * commission * 2);
+        System.out.format("%8s%3s%24s%3s%28s%3s%14s%3s%24s%1s", tradeCountStr, " | ", tradeGainStr, " | ", accountBalanceStr, " | ", numberContractsStr, " | ", commissionsPaidStr, "\n");
+    }
+
+    void printTrade(int tradeCount, double netGain, double rValue, double tradeBalance) {
+        String tradeCountStr = "[" + tradeCount + "] " + (netGain > 0 ? ANSI_GREEN + "W" + ANSI_RESET : ANSI_RED + "L" + ANSI_RESET);
+        String tradeGainStr = "Trade Gain: " + printBalance(netGain) + " " + printRatio(rValue);
+        String accountBalanceStr = "Account Balance: " + printBalance(tradeBalance, (tradeBalance - initialBalance) / initialBalance);
+        System.out.format("%8s%3s%24s%3s%28s%1s", tradeCountStr, " | ", tradeGainStr, " | ", accountBalanceStr, "\n");
     }
 
     String printBalance(double balance) {

@@ -1,27 +1,17 @@
 import java.util.concurrent.ThreadLocalRandom;
 
-public class FuturesStrategy extends Strategy {
+public class CryptoStrategy extends Strategy {
 
-    double pointsRisk = 4;
     double riskPerTrade = 0.05;
     double[] rMultipleLossArr = {-0.75, -1};
     double[] rMultipleProfitArr = {1.5, 1.75, 2.0};
-    double commission = 0;
 
-    public FuturesStrategy(String name, double initialBalance) {
+    public CryptoStrategy(String name, double initialBalance) {
         super(name, initialBalance);
-        tradeBalance = initialBalance;
     }
 
     public double runSimulation() {
         resetBalances();
-
-        if (initialBalance * riskPerTrade < 20) {
-            if (logResults) {
-                System.out.println("Initial balance not high enough for risk employed.");
-            }
-            return -1;
-        }
 
         for (int tradeCount = 1; tradeCount <= maxTrades; tradeCount++) {
             if (isMaxBalanceReached()) {
@@ -31,16 +21,13 @@ public class FuturesStrategy extends Strategy {
                 break;
             }
 
-            boolean useMicroContract = tradeBalance * riskPerTrade < 200;
-            double pricePerContract = useMicroContract ? 5 : 50;
-            commission = useMicroContract ? 0.22 : 0.79;
-            double riskPerContract = (pricePerContract * pointsRisk);
-            double numberContracts = Math.floor((tradeBalance * riskPerTrade) / riskPerContract);
-
-            if (numberContracts <= 0) {
+            if (tradeBalance < bankruptBalance) {
                 double amtToDeposit = initialBalance - tradeBalance;
                 bankBalance -= amtToDeposit;
                 tradeBalance += amtToDeposit;
+                if (level > 1) {
+                    level--;
+                }
             }
 
             double netGain;
@@ -48,28 +35,37 @@ public class FuturesStrategy extends Strategy {
             if (isWinningTrade()) {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleProfitArr.length);
                 rMultiple = rMultipleProfitArr[rMultipleIndex];
-                netGain = numberContracts * rMultiple * pricePerContract * pointsRisk;
+                netGain = tradeBalance * riskPerTrade * rMultiple;
+                tradeBalance += netGain;
                 totalWinsAccumulated += netGain;
+                if (logResults) {
+                    printTrade(tradeCount, netGain, rMultiple, tradeBalance);
+                }
             } else {
                 int rMultipleIndex = ThreadLocalRandom.current().nextInt(0, rMultipleLossArr.length);
                 rMultiple = rMultipleLossArr[rMultipleIndex];
-                netGain = numberContracts * rMultiple * pricePerContract * pointsRisk;
+                netGain = tradeBalance * riskPerTrade * rMultiple;
+                tradeBalance += netGain;
                 totalLossesIncurred += netGain;
+                if (logResults) {
+                    printTrade(tradeCount, netGain, rMultiple, tradeBalance);
+                }
             }
-            tradeBalance += netGain;
 
-            double commissionsPerSide = numberContracts * commission;
-            double commissionsPaid = commissionsPerSide * 2;
-            totalCommissionsPaid += commissionsPaid;
-            tradeBalance -= commissionsPaid;
-
+            double tradeCommissions = Math.round((tradeBalance / avgContractCost) * commission);
+            totalCommissionsPaid += tradeCommissions;
+            if (payCommissionsFromTradeBalance) {
+                tradeBalance -= (tradeCommissions * 2);
+            } else {
+                bankBalance -= (tradeCommissions * 2);
+            }
             if (logResults) {
-                printTrade(tradeCount, netGain, rMultiple, tradeBalance, numberContracts);
                 sleep(1000);
             }
         }
+
         double finalBalance = tradeBalance + bankBalance;
-        double taxesPaid = finalBalance > 0 ? (finalBalance) * 0.25 : 0;
+        double taxesPaid = finalBalance > 0 ? (finalBalance) * taxRate : 0;
         double finalBalanceAfterTax = finalBalance - taxesPaid;
         if (logResults) {
             System.out.println("===========================================================");

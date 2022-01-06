@@ -1,20 +1,16 @@
 public class Simulation {
     public static void main(String[] args) {
-        Strategy strategy = optionsStrategy();
+        Strategy strategy = cryptoStrategy();
         strategy.runManySimulations();
         strategy.runSimulation();
 //        numberLossToBankrupt();
 //        numberWinsToMillion();
     }
 
-    static Strategy optionsStrategy() {
-        Strategy optionStrategy = new Strategy("Options Trading", 500);
+    static Strategy cryptoStrategy() {
+        Strategy optionStrategy = new CryptoStrategy("Crypto Trading", 500);
         optionStrategy.setMaxTrades(100);
         optionStrategy.setWinRate(50);
-        optionStrategy.setRisk(0.04, 0.06);
-        optionStrategy.setReward(0.09, 0.11);
-        optionStrategy.setUseBankRoll(false);
-//        optionStrategy.setTakePercentageProfits(0.10);
         return optionStrategy;
     }
 
