@@ -19,3 +19,4 @@ This protects our accounts from the inevitable draw-downs. Worst case scenario w
 * ~~Extend Strategy object to create CryptoStrategy object~~
 * Add setCommissionAmount function
 * Add Market Data to back test on. Random trades on 1 minute chart.
+* Fix local development environment
