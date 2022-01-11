@@ -8,6 +8,6 @@ We start with an account size of $500. Increasing this initial balance will spee
 ## Todo
 * ~~Extend Strategy object to create FuturesStrategy object~~
 * ~~Extend Strategy object to create CryptoStrategy object~~
+* Fix local development environment
 * Add setCommissionAmount function
 * Add Market Data to back test on. Random trades on 1 minute chart.
-* Fix local development environment
